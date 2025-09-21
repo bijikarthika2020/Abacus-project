@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - TinyBeads</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* Your previous CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #2a9d8f;
+            --warning: #f9c74f;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #2d3748;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .logo i {
+            margin-right: 10px;
+        }
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        .login-subtitle {
+            color: var(--gray);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .forgot-password {
+            display: block;
+            text-align: right;
+            margin-bottom: 20px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .login-btn:hover {
+            background: var(--primary-dark);
+        }
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+        .divider::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: var(--light-gray);
+        }
+        .divider span {
+            background: white;
+            position: relative;
+            padding: 0 15px;
+            color: var(--gray);
+        }
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--light);
+            border: 1px solid var(--light-gray);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .social-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--gray);
+        }
+        .signup-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+        /* User Type Styles */
+        .user-type {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+        .user-type-option {
+            cursor: pointer;
+            border: 2px solid var(--light-gray);
+            border-radius: 10px;
+            padding: 12px 15px;
+            flex: 1;
+            text-align: center;
+            transition: border-color 0.3s, background-color 0.3s;
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: 600;
+        }
+        .user-type-option i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        .user-type-option.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+        .user-type-option.selected i {
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            .footer-column ul {
+                justify-content: center;
+            }
+        }
+        @media (max-width: 576px) {
+            .login-card {
+                padding: 25px;
+            }
+            .footer-column ul {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="{{ url_for('home') }}" class="logo">
+                <i class="fas fa-bezier-curve"></i> TinyBeads
+            </a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1 class="login-title">Welcome Back</h1>
+                <p class="login-subtitle">Sign in to continue your learning journey</p>
+            </div>
+
+            <form id="loginForm" action="{{ url_for('login') }}" method="post">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required />
+                </div>
+
+                <div class="form-group">
+                    <label>I am a: *</label>
+                    <div class="user-type">
+                        <div class="user-type-option" onclick="selectUserType(this, 'student')" tabindex="0" role="button" aria-pressed="false">
+                            <i class="fas fa-user-graduate"></i>
+                            <div>Student</div>
+                        </div>
+                        
+                        <div class="user-type-option" onclick="selectUserType(this, 'teacher')" tabindex="0" role="button" aria-pressed="false">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <div>Teacher</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="userTypeInput" name="user_type" required>
+                </div>
+
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+
+            <div class="divider">
+                <span>Or continue with</span>
+            </div>
+
+            <div class="social-login">
+                <div class="social-btn"><i class="fab fa-google"></i></div>
+                <div class="social-btn"><i class="fab fa-facebook-f"></i></div>
+                <div class="social-btn"><i class="fab fa-apple"></i></div>
+            </div>
+
+            <div class="signup-link">
+                Don't have an account? <a href="{{ url_for('register') }}">Sign up now</a>
+            </div>
+
+            <a href="{{ url_for('home') }}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>TinyBeads</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Our Team</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Learn</h3>
+                <ul>
+                    <li><a href="#">Courses</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Certification</a></li>
+                    <li><a href="#">Success Stories</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Connect With Us</h3>
+                <ul>
+                    <li><a href="#"><i class="fab fa-facebook-f"></i> Facebook</a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                    <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                    <li><a href="#"><i class="fab fa-youtube"></i> YouTube</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            ©️ 2023 TinyBeads. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+            // JavaScript to handle user type selection
+            function selectUserType(element, userType) {
+                // Remove selected class from all options
+                document.querySelectorAll('.user-type-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    opt.setAttribute('aria-pressed', 'false');
+                });
+                // Add selected class to clicked option
+                element.classList.add('selected');
+                element.setAttribute('aria-pressed', 'true');
+                // Set hidden input value for form submission
+                document.getElementById('userTypeInput').value = userType;
+            }
+        
+            // Form submission handler with conditional redirect
+            document.getElementById('loginForm').addEventListener('submit', function(event) {
+                event.preventDefault();  // prevent default submission for demonstration
+        
+                const userType = document.getElementById('userTypeInput').value;
+        
+                if (!userType) {
+                    alert('Please select a user type!');
+                    return;
+                }
+        
+                // You can add validation for other inputs here if needed
+        
+                // Redirect based on selected user type
+                if (userType === 'student') {
+                    window.location.href = '/dashboard';  // redirect to dashboard route
+                } else if (userType === 'teacher') {
+                    window.location.href = '/teacher';    // redirect to teacher route
+                } else {
+                    alert('Login for this user type is not implemented yet.');
+                }
+            });
+    </script>
+</body>
+</html>

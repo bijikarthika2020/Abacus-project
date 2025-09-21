@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teacher Portal - TinyBeads</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .teachers-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .teachers-header {
+            background: #5c6bc0;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .teachers-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .teachers-header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .teacher-dashboard {
+            padding: 20px;
+        }
+        
+        .teacher-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: #e8eaf6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+            color: #5c6bc0;
+        }
+        
+        .stat-content h3 {
+            font-size: 28px;
+            color: #5c6bc0;
+            margin-bottom: 5px;
+        }
+        
+        .stat-content p {
+            color: #666;
+        }
+        
+        .teacher-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .action-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .action-card h3 {
+            color: #5c6bc0;
+            margin-bottom: 10px;
+        }
+        
+        .action-card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #5c6bc0;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            background: #3f51b5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-primary {
+            background: #5c6bc0;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #5c6bc0;
+            color: #5c6bc0;
+        }
+        
+        .btn-outline:hover {
+            background: #5c6bc0;
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .teacher-stats, .teacher-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="teachers-container">
+        <div class="teachers-header">
+            <h1>Teacher Portal</h1>
+            <p>Tools and resources for abacus instructors</p>
+        </div>
+
+        <!-- Teacher Dashboard -->
+        <div class="teacher-dashboard">
+            <div class="teacher-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>24</h3>
+                        <p>Students</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>15</h3>
+                        <p>Active Lessons</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>78%</h3>
+                        <p>Average Progress</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>8</h3>
+                        <p>Pending Messages</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="teacher-actions">
+                <div class="action-card">
+                    <h3>Student Management</h3>
+                    <p>View and manage your students' progress</p>
+                    <button class="btn btn-primary" id="manageStudents">Manage Students</button>
+                </div>
+                <div class="action-card">
+                    <h3>Lesson Materials</h3>
+                    <p>Access teaching resources and materials</p>
+                    <button class="btn btn-primary" id="viewMaterials">View Materials</button>
+                </div>
+                <div class="action-card">
+                    <h3>Communication</h3>
+                    <p>Message students and parents</p>
+                    <button id="openMessages" class="btn btn-primary">Open Messages</button>
+
+                </div>
+                <div class="action-card">
+                    <h3>Progress Reports</h3>
+                    <p>Generate student progress reports</p>
+                    <button id="createReports" class="btn btn-primary">Create Reports</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Redirect to student management page
+        document.getElementById('manageStudents').addEventListener('click', function() {
+            window.location.href = '/studentreg';
+        });
+
+        // Redirect to lesson materials page
+        document.getElementById('viewMaterials').addEventListener('click', function() {
+            window.location.href = '/lesson';
+        });
+
+        document.getElementById('openMessages').addEventListener('click', function() {
+            window.location.href = '/chat';
+        });
+        
+        document.getElementById('createReports').addEventListener('click', function() {
+            window.location.href = '/p_report';
+        });
+
+    </script>
+</body>
+</html>

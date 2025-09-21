@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Abacus - TinyBeads</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #2a9d8f;
+            --warning: #f9c74f;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #2d3748;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --wood-color: #c19a6b;
+            --bead-color: #e63946;
+            --bead-highlight: #f72585;
+            --upper-bead: #3a0ca3;
+            --frame-color: #8b5a2b;
+            --rod-color: #5d4037;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .abacus-container {
+            background: var(--wood-color);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            position: relative;
+            border: 12px solid var(--frame-color);
+            display: flex;
+            justify-content: center;
+            max-width: 95%;
+        }
+        
+        .abacus-frame {
+            background: #a67b5b;
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+            display: flex;
+            gap: 25px;
+        }
+        
+        .value-bar {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 30px;
+            background: var(--frame-color);
+            color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-weight: bold;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .rod-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .place-value {
+            font-weight: bold;
+            color: white;
+            background: var(--primary);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            z-index: 10;
+        }
+        
+        .rod {
+            width: 60px;
+            height: 350px;
+            background: var(--rod-color);
+            border-radius: 5px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+        
+        .beam {
+            width: 70px;
+            height: 5px;
+            background: #5d4037;
+            border-radius: 2px;
+            margin: 10px 0;
+        }
+        
+        .bead-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .bead {
+            width: 50px;
+            height: 50px;
+            background: var(--upper-bead);
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .bead.lower {
+            background: var(--bead-color);
+        }
+        
+        .bead:hover {
+            transform: scale(1.1);
+        }
+        
+        .bead.active {
+            background: var(--bead-highlight);
+            box-shadow: 0 0 0 3px white, 0 0 0 6px var(--bead-highlight);
+        }
+        
+        .unit-dot {
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            margin-top: 10px;
+        }
+        
+        .value-display {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 极速, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-reset {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background-color: #c1121f;
+        }
+        
+        .instructions {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .instructions ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .instructions li i {
+            color: var(--success);
+            position: absolute;
+            left: 0;
+            top: 3px;
+        }
+        
+        @media (max-width: 900px) {
+            .abacus-frame {
+                gap: 15px;
+            }
+            
+            .rod {
+                width: 50px;
+                height: 300px;
+            }
+            
+            .bead {
+                width: 40px;
+                height: 40px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @极速 (max-width: 700px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .abacus-frame {
+                gap: 10px;
+            }
+            
+            .rod {
+                width: 40px;
+                height: 250px;
+            }
+            
+            .bead {
+                width: 30px;
+                height: 30px;
+                font-size: 0.7rem;
+            }
+            
+            .place-value {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .abacus-frame {
+                gap: 5px;
+            }
+            
+            .rod {
+                width: 30px;
+                height: 200px;
+            }
+            
+            .bead {
+                width: 25px;
+                height: 25px;
+                font-size: 0.6rem;
+            }
+            
+            .place-value {
+                width: 25px;
+                height: 25px;
+                font-size: 0.7rem;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Interactive Abacus</h1>
+    </div>
+    
+    <div class="value-display">
+        Current Value: <span id="current-value">0</span>
+    </div>
+    
+    <div class="abacus-container">
+        <div class="value-bar">
+            <span>Thousands</span>
+            <span>Hundreds</span>
+            <span>Tens</span>
+            <span>Units</span>
+        </div>
+        <div class="abacus-frame">
+            <div class="rod-container">
+                <div class="place-value">1000</div>
+                <div class="rod">
+                    <div class="bead-section">
+                        <div class="bead" data-value="5" data-rod="3" data-position="0">5</div>
+                    </div>
+                    <div class="beam"></div>
+                    <div class="bead-section">
+                        <div class="bead lower" data-value="1" data-rod="3" data-position="1">1</div>
+                        <div class="bead lower" data-value="1" data-rod="3" data-position="2">1</div>
+                        <div class="bead lower" data-value="1" data-rod="3" data-position="3">1</div>
+                        <div class="bead lower" data-value="极速" data-rod="3" data-position="4">1</div>
+                    </div>
+                </div>
+                <div class="unit-dot"></div>
+            </div>
+            
+            <div class="rod-container">
+                <div class="place-value">100</div>
+                <div class="rod">
+                    <div class="bead-section">
+                        <div class="bead" data-value="5" data-rod="2" data-position="0">5</div>
+                    </div>
+                    <div class="beam"></div>
+                    <div class="bead-section">
+                        <div class="bead lower" data-value="1" data-rod="2" data-position="1">1</div>
+                        <div class="bead lower" data-value="1" data-rod="2" data-position="2">1</div>
+                        <div class="bead lower" data-value="1" data-rod="2" data-position="3">1</div>
+                        <div class="bead lower" data-value="1" data-rod="2" data-position="4">1</div>
+                    </div>
+                </div>
+                <div class="unit-dot"></div>
+            </div>
+            
+            <div class="rod-container">
+                <div class="place-value">10</div>
+                <div class="rod">
+                    <div class="bead-section">
+                        <div class="bead" data-value="5极速" data-rod="1" data-position="0">5</div>
+                    </div>
+                    <div class="beam"></div>
+                    <div class="bead-section">
+                        <div class="bead lower" data-value="1" data-rod="1" data-position="1">1</div>
+                        <div class="bead lower" data-value="1" data-rod="1" data-position="2">1</div>
+                        <div class="bead lower" data-value="1" data-rod="1" data-position="3">1</div>
+                        <div class="bead lower" data-value="1" data-rod="1" data-position="4">1</div>
+                    </div>
+                </div>
+                <div class="unit-dot"></div>
+            </div>
+            
+            <div class="rod-container">
+                <div class="place-value">1</div>
+                <div class="rod">
+                    <div class="bead-section">
+                        <div class="bead" data-value="5" data-rod="0" data-position="0">5</div>
+                    </div>
+                    <div class="beam"></div>
+                    <div class="bead-section">
+                        <div class="bead lower" data-value="1" data-rod="0" data-position="1">1</div>
+                        <div class="bead lower" data-value="1" data-rod="0" data-position="2">1</div>
+                        <div class="bead lower" data-value="1" data-rod="0" data-position="3">1</div>
+                        <div class="bead lower" data-value="1" data-rod="0" data-position="4">1</div>
+                    </div>
+                </div>
+                <div class="unit-dot"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="btn btn-reset"><i class="fas fa-redo"></i> Reset Abacus</button>
+    </div>
+    
+    <div class="instructions">
+        <h3>How to Use the Abacus</h3>
+        <ul>
+            <li><i class="fas fa-check-circle"></i> Click on beads to move them toward the beam</li>
+            <li><i class="fas fa-check-circle"></i> Upper beads (blue) represent a value of 5 each</li>
+            <li><i class="fas fa-check-circle"></i> Lower beads (red) represent a value of 1 each</li>
+            <li><i class="fas fa-check-circle"></i> The current value is calculated based on bead positions</li>
+            <li><i class="fas fa-check-circle"></i> Each rod represents a different place value (ones, tens, hundreds, thousands)</li>
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const beads = document.querySelectorAll('.bead');
+            const currentValueElement = document.getElementById('current-value');
+            const resetButton = document.querySelector('.btn-reset');
+            
+            // Track bead positions (true = active/engaged, false = inactive/resting)
+            const beadStates = [
+                [false, false, false, false, false], // Ones
+                [false, false, false, false, false], // Tens
+                [false, false, false, false, false], // Hundreds
+                [false, false, false, false, false]  // Thousands
+            ];
+            
+            // Initialize bead positions
+            beads.forEach(bead => {
+                bead.addEventListener('click', handleBeadClick);
+            });
+            
+            // Reset all beads
+            resetButton.addEventListener('click', resetAbacus);
+            
+            function handleBeadClick(e) {
+                const bead = e.target;
+                const rodIndex = parseInt(bead.dataset.rod);
+                const positionIndex = parseInt(bead.dataset.position);
+                
+                if (positionIndex === 0) {
+                    // Upper bead (value 5)
+                    toggleUpperBead(rodIndex, positionIndex);
+                } else {
+                    // Lower bead (value 1)
+                    toggleLowerBead(rodIndex, positionIndex);
+                }
+                
+                // Update the current value
+                updateCurrentValue();
+            }
+            
+            function toggleUpperBead(rodIndex, positionIndex) {
+                // For upper bead, just toggle its state
+                beadStates[rodIndex][positionIndex] = !beadStates[rodIndex][positionIndex];
+                
+                // Update visual state
+                const bead = document.querySelector(`.bead[data-rod="${rodIndex}"][data-position="${positionIndex}"]`);
+                if (beadStates[rodIndex][positionIndex]) {
+                    bead.classList.add('active');
+                    bead.style.marginTop = '15px';
+                } else {
+                    bead.classList.remove('active');
+                    bead.style.marginTop = '0';
+                }
+            }
+            
+            function toggleLowerBead(rodIndex, positionIndex) {
+                // For lower beads, toggle the specific bead
+                beadStates[rodIndex][positionIndex] = !beadStates[rodIndex][positionIndex];
+                
+                // Update visual state
+                const bead = document.querySelector(`.bead[data-rod="${rodIndex}"][data-position="${positionIndex}"]`);
+                if (beadStates[rodIndex][positionIndex]) {
+                    bead.classList.add('active');
+                    bead.style.marginBottom = '15px';
+                } else {
+                    bead.classList.remove('active');
+                    bead.style.marginBottom = '0';
+                }
+            }
+            
+            function updateCurrentValue() {
+                let totalValue = 0;
+                
+                // Calculate value for each rod
+                for (let rodIndex = 0; rodIndex < 4; rodIndex++) {
+                    let rodValue = 0;
+                    
+                    // Check upper bead (value 5)
+                    if (beadStates[rodIndex][0]) {
+                        rodValue += 5;
+                    }
+                    
+                    // Check lower beads (value 1 each)
+                    for (let i = 1; i < 5; i++) {
+                        if (beadStates[rodIndex][i]) {
+                            rodValue += 1;
+                        }
+                    }
+                    
+                    // Multiply by place value (1, 10, 100, 1000)
+                    const placeValue = Math.pow(10, rodIndex);
+                    totalValue += rodValue * placeValue;
+                }
+                
+                // Update display
+                currentValueElement.textContent = totalValue.toLocaleString();
+            }
+            
+            function resetAbacus() {
+                // Reset all bead states
+                for (let rodIndex = 0; rodIndex < 4; rodIndex++) {
+                    for (let positionIndex = 0; positionIndex < 5; positionIndex++) {
+                        beadStates[rodIndex][positionIndex] = false;
+                    }
+                }
+                
+                // Reset visual state
+                beads.forEach(bead => {
+                    bead.classList.remove('active');
+                    bead.style.marginTop = '0';
+                    bead.style.marginBottom = '0';
+                });
+                
+                // Reset display
+                currentValueElement.textContent = '0';
+            }
+        });
+    </script>
+</body>
+</html>

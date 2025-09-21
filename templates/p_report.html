@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AbacusMaster - Student Progress Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #fff;
+            color: #6a11cb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .controls {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .filter-group select:focus, .filter-group input:focus {
+            border-color: #6a11cb;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #555;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .report-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .report-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .school-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-title {
+            font-size: 1.5rem;
+            color: #6a11cb;
+            margin-bottom: 0.5rem;
+        }
+        
+        .student-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .info-value {
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        
+        .skills-container {
+            margin-bottom: 2rem;
+        }
+        
+        .skills-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .skill-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .skill-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .skill-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .skill-icon {
+            font-size: 2.5rem;
+            color: #6a11cb;
+            margin-bottom: 1rem;
+        }
+        
+        .skill-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .skill-level {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .skill-progress {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        }
+        
+        .skill-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #6a11cb;
+        }
+        
+        .progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        
+        .progress-table th, .progress-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .progress-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .progress-table tr:hover {
+            background-color: #f5f7fb;
+        }
+        
+        .level-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .level-beginner {
+            background-color: #ffeaa7;
+            color: #d35400;
+        }
+        
+        .level-intermediate {
+            background-color: #81ecec;
+            color: #00b894;
+        }
+        
+        .level-advanced {
+            background-color: #a29bfe;
+            color: #6c5ce7;
+        }
+        
+        .level-master {
+            background-color: #fd79a8;
+            color: #e84393;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #6a11cb;
+            margin: 0.5rem 0;
+        }
+        
+        .summary-label {
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+        
+        .comments {
+            margin-top: 2rem;
+        }
+        
+        .comments h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .teacher-comment {
+            background-color: #f8f9fa;
+            border-left: 4px solid #6a11cb;
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .signature {
+            margin-top: 3rem;
+            text-align: right;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #ddd;
+            width: 300px;
+            margin-left: auto;
+            margin-top: 4rem;
+        }
+        
+        .signature-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .print-btn {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .filters {
+                grid-template-columns: 1fr;
+            }
+            
+            .student-info, .summary, .skill-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+        
+        .abacus-visual {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .abacus {
+            display: flex;
+            background: #8c7b6b;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .abacus-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 0.5rem;
+        }
+        
+        .abacus-beam {
+            width: 50px;
+            height: 5px;
+            background: #d35400;
+            margin: 5px 0;
+        }
+        
+        .abacus-bead {
+            width: 40px;
+            height: 25px;
+            background: #e17055;
+            border-radius: 10px;
+            margin: 2px 0;
+            cursor: pointer;
+        }
+        
+        .abacus-bead.active {
+            background: #fd79a8;
+        }
+        
+        .chart-container {
+            margin: 2rem 0;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .chart-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .badges-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            min-width: 100px;
+        }
+        
+        .badge-icon {
+            font-size: 2rem;
+            color: #6a11cb;
+            margin-bottom: 0.5rem;
+        }
+        
+        .badge-title {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .badge-earned {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+        }
+        
+        .badge-earned .badge-icon {
+            color: white;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #6a11cb;
+            color: #6a11cb;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .goals-list {
+            list-style-type: none;
+        }
+        
+        .goal-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .goal-checkbox {
+            margin-right: 1rem;
+            width: 20px;
+            height: 20px;
+        }
+        
+        .goal-text {
+            flex: 1;
+        }
+        
+        .goal-completed {
+            text-decoration: line-through;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-calculator"></i>
+            <span>AbacusMaster</span>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar">IM</div>
+            <div>Instructor Maria</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1 class="page-title">Abacus Learning Progress Report</h1>
+        
+        <div class="controls">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="student-select">Select Student</label>
+                    <select id="student-select">
+                        <option value="student1">Emma Smith</option>
+                        <option value="student2">Michael Johnson</option>
+                        <option value="student3">Sarah Rodriguez</option>
+                        <option value="student4">David Wilson</option>
+                        <option value="student5">Sophia Brown</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="term-select">Learning Period</label>
+                    <select id="term-select">
+                        <option value="term1">Last 30 Days</option>
+                        <option value="term2">Last 90 Days</option>
+                        <option value="term3">All Time</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="report-type">Report Type</label>
+                    <select id="report-type">
+                        <option value="detailed">Detailed Report</option>
+                        <option value="summary">Summary Report</option>
+                        <option value="skills">Skills Focus</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" id="generate-btn">
+                    <i class="fas fa-file-alt"></i> Generate Report
+                </button>
+                <button class="btn btn-secondary" id="compare-btn">
+                    <i class="fas fa-chart-line"></i> Compare Progress
+                </button>
+                <button class="btn btn-secondary" id="goals-btn">
+                    <i class="fas fa-bullseye"></i> View Goals
+                </button>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="report">Progress Report</div>
+            <div class="tab" data-tab="analytics">Performance Analytics</div>
+            <div class="tab" data-tab="goals">Learning Goals</div>
+        </div>
+        
+        <div class="tab-content active" id="report-tab">
+            <div class="report-container" id="report-container">
+                <div class="report-header">
+                    <div class="school-name">AbacusMaster Learning Center</div>
+                    <div class="report-title">Student Progress Report</div>
+                    <div class="academic-term">Last 30 Days</div>
+                </div>
+                
+                <div class="student-info">
+                    <div class="info-group">
+                        <span class="info-label">Student Name</span>
+                        <span class="info-value">Emma Smith</span>
+                    </div>
+                    
+                    <div class="info-group">
+                        <span class="info-label">Current Level</span>
+                        <span class="info-value">Intermediate 2</span>
+                    </div>
+                    
+                    <div class="info-group">
+                        <span class="info-label">Student ID</span>
+                        <span class="info-value">#ABACUS-2023-1085</span>
+                    </div>
+                    
+                    <div class="info-group">
+                        <span class="info-label">Instructor</span>
+                        <span class="info-value">Instructor Maria</span>
+                    </div>
+                </div>
+                
+                <div class="abacus-visual">
+                    <div class="abacus">
+                        <div class="abacus-column">
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead active"></div>
+                            <div class="abacus-beam"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                        </div>
+                        <div class="abacus-column">
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-beam"></div>
+                            <div class="abacus-bead active"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                        </div>
+                        <div class="abacus-column">
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-beam"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead active"></div>
+                            <div class="abacus-bead"></div>
+                        </div>
+                        <div class="abacus-column">
+                            <div class="abacus-bead active"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-beam"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                            <div class="abacus-bead"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="skills-container">
+                    <h3 class="skills-title">Abacus Skills Progress</h3>
+                    <div class="skill-cards">
+                        <div class="skill-card">
+                            <div class="skill-icon">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <div class="skill-name">Addition</div>
+                            <div class="skill-level">
+                                <div class="skill-progress" style="width: 85%;"></div>
+                            </div>
+                            <div class="skill-value">85% Mastery</div>
+                        </div>
+                        
+                        <div class="skill-card">
+                            <div class="skill-icon">
+                                <i class="fas fa-minus-circle"></i>
+                            </div>
+                            <div class="skill-name">Subtraction</div>
+                            <div class="skill-level">
+                                <div class="skill-progress" style="width: 78%;"></div>
+                            </div>
+                            <div class="skill-value">78% Mastery</div>
+                        </div>
+                        
+                        <div class="skill-card">
+                            <div class="skill-icon">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                            <div class="skill-name">Multiplication</div>
+                            <div class="skill-level">
+                                <div class="skill-progress" style="width: 65%;"></div>
+                            </div>
+                            <div class="skill-value">65% Mastery</div>
+                        </div>
+                        
+                        <div class="skill-card">
+                            <div class="skill-icon">
+                                <i class="fas fa-divide"></i>
+                            </div>
+                            <div class="skill-name">Division</div>
+                            <div class="skill-level">
+                                <div class="skill-progress" style="width: 60%;"></div>
+                            </div>
+                            <div class="skill-value">60% Mastery</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>Recent Practice Sessions</h3>
+                <table class="progress-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Exercise Type</th>
+                            <th>Problems Solved</th>
+                            <th>Accuracy</th>
+                            <th>Speed (problems/min)</th>
+                            <th>Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Oct 12, 2023</td>
+                            <td>Addition</td>
+                            <td>50</td>
+                            <td>94%</td>
+                            <td>12</td>
+                            <td><span class="level-badge level-intermediate">Intermediate</span></td>
+                        </tr>
+                        <tr>
+                            <td>Oct 10, 2023</td>
+                            <td>Multiplication</td>
+                            <td>40</td>
+                            <td>82%</td>
+                            <td>8</td>
+                            <td><span class="level-badge level-intermediate">Intermediate</span></td>
+                        </tr>
+                        <tr>
+                            <td>Oct 8, 2023</td>
+                            <td>Subtraction</td>
+                            <td>45</td>
+                            <td>88%</td>
+                            <td>10</td>
+                            <td><span class="level-badge level-intermediate">Intermediate</span></td>
+                        </tr>
+                        <tr>
+                            <td>Oct 5, 2023</td>
+                            <td>Division</td>
+                            <td>35</td>
+                            <td>75%</td>
+                            <td>7</td>
+                            <td><span class="level-badge level-beginner">Beginner</span></td>
+                        </tr>
+                        <tr>
+                            <td>Oct 3, 2023</td>
+                            <td>Mixed Operations</td>
+                            <td>60</td>
+                            <td>80%</td>
+                            <td>9</td>
+                            <td><span class="level-badge level-intermediate">Intermediate</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="summary">
+                    <div class="summary-card">
+                        <div class="summary-label">Total Practice Hours</div>
+                        <div class="summary-value">36.5</div>
+                        <div class="summary-subtitle">Last 30 days</div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-label">Average Accuracy</div>
+                        <div class="summary-value">87%</div>
+                        <div class="summary-subtitle">Across all exercises</div>
+                    </div>
+                    
+                    <div class="summary-card">
+                        <div class="summary-label">Speed Gain</div>
+                        <div class="summary-value">+22%</div>
+                        <div class="summary-subtitle">Since last month</div>
+                    </div>
+                </div>
+                
+                <div class="comments">
+                    <h3>Instructor's Comments</h3>
+                    <div class="teacher-comment">
+                        <p>Emma has shown remarkable progress in her abacus skills over the past month. Her addition and subtraction skills are now at an advanced level, and she's making good progress with multiplication.</p>
+                        <p>I've noticed that her mental calculation speed has improved by 22% since last month, which is excellent. She consistently practices and has completed 36.5 hours of practice in the last 30 days.</p>
+                        <p>For further improvement, I recommend focusing on division exercises and practicing mixed operations to build more fluency. Emma should aim for at least 15 minutes of daily practice to maintain her progress.</p>
+                    </div>
+                </div>
+                
+                <div class="signature">
+                    <div class="signature-line"></div>
+                    <div class="signature-label">Instructor Maria, AbacusMaster Certified Instructor</div>
+                </div>
+                
+                <div class="print-btn">
+                    <button class="btn btn-primary" id="print-btn">
+                        <i class="fas fa-print"></i> Print Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="analytics-tab">
+            <div class="chart-container">
+                <h3 class="chart-title">Skill Progress Over Time</h3>
+                <canvas id="progress-chart" height="250"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3 class="chart-title">Weekly Practice Time</h3>
+                <canvas id="practice-chart" height="250"></canvas>
+            </div>
+            
+            <div class="badges-container">
+                <div class="badge badge-earned">
+                    <div class="badge-icon"><i class="fas fa-medal"></i></div>
+                    <div class="badge-title">Addition Master</div>
+                </div>
+                
+                <div class="badge badge-earned">
+                    <div class="badge-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="badge-title">30-Day Streak</div>
+                </div>
+                
+                <div class="badge">
+                    <div class="badge-icon"><i class="fas fa-crown"></i></div>
+                    <div class="badge-title">Multiplication Expert</div>
+                </div>
+                
+                <div class="badge">
+                    <div class="badge-icon"><i class="fas fa-star"></i></div>
+                    <div class="badge-title">Speed Demon</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="goals-tab">
+            <div class="chart-container">
+                <h3 class="chart-title">Learning Goals & Objectives</h3>
+                
+                <ul class="goals-list">
+                    <li class="goal-item">
+                        <input type="checkbox" class="goal-checkbox" checked>
+                        <span class="goal-text goal-completed">Master addition of 3-digit numbers</span>
+                    </li>
+                    <li class="goal-item">
+                        <input type="checkbox" class="goal-checkbox" checked>
+                        <span class="goal-text goal-completed">Achieve 90% accuracy in subtraction exercises</span>
+                    </li>
+                    <li class="goal-item">
+                        <input type="checkbox" class="goal-checkbox">
+                        <span class="goal-text">Master multiplication of 2-digit numbers</span>
+                    </li>
+                    <li class="goal-item">
+                        <input type="checkbox" class="goal-checkbox">
+                        <span class="goal-text">Complete division proficiency exercises</span>
+                    </li>
+                    <li class="goal-item">
+                        <input type="checkbox" class="goal-checkbox">
+                        <span class="goal-text">Reach 15 problems/minute speed in mixed operations</span>
+                    </li>
+                    <li class="goal-item">
+                        <input type="checkbox" class="goal-checkbox">
+                        <span class="goal-text">Advance to Level 3 certification</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="chart-container">
+                <h3 class="chart-title">Next Steps Recommendation</h3>
+                <div class="teacher-comment">
+                    <p>Based on Emma's current progress, I recommend the following learning path for the next month:</p>
+                    <ol>
+                        <li>Focus on division exercises for 15 minutes daily</li>
+                        <li>Practice mixed operations twice a week</li>
+                        <li>Attempt speed challenges to improve calculation speed</li>
+                        <li>Review multiplication tables for faster recall</li>
+                    </ol>
+                    <p>With consistent practice, Emma should be ready for Level 3 certification by the end of next month.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>AbacusMaster Learning Progress Report • ©️ 2023</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generate-btn');
+            const compareBtn = document.getElementById('compare-btn');
+            const printBtn = document.getElementById('print-btn');
+            const goalsBtn = document.getElementById('goals-btn');
+            const studentSelect = document.getElementById('student-select');
+            const termSelect = document.getElementById('term-select');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Sample student data for abacus learning
+            const students = {
+                student1: {
+                    name: "Emma Smith",
+                    level: "Intermediate 2",
+                    id: "#ABACUS-2023-1085",
+                    instructor: "Instructor Maria",
+                    skills: {
+                        addition: { mastery: 85, comment: "Excellent speed and accuracy" },
+                        subtraction: { mastery: 78, comment: "Good understanding of concepts" },
+                        multiplication: { mastery: 65, comment: "Needs more practice with larger numbers" },
+                        division: { mastery: 60, comment: "Beginning to grasp the concepts" }
+                    },
+                    practiceHours: "36.5",
+                    accuracy: "87%",
+                    speedGain: "+22%",
+                    comments: "Emma has shown remarkable progress in her abacus skills over the past month. Her addition and subtraction skills are now at an advanced level, and she's making good progress with multiplication. I've noticed that her mental calculation speed has improved by 22% since last month, which is excellent. She consistently practices and has completed 36.5 hours of practice in the last 30 days. For further improvement, I recommend focusing on division exercises and practicing mixed operations to build more fluency. Emma should aim for at least 15 minutes of daily practice to maintain her progress."
+                },
+                student2: {
+                    name: "Michael Johnson",
+                    level: "Beginner 3",
+                    id: "#ABACUS-2023-1092",
+                    instructor: "Instructor Maria",
+                    skills: {
+                        addition: { mastery: 70, comment: "Good progress, needs more speed" },
+                        subtraction: { mastery: 65, comment: "Understanding concepts well" },
+                        multiplication: { mastery: 40, comment: "Just starting multiplication" },
+                        division: { mastery: 30, comment: "Not yet started" }
+                    },
+                    practiceHours: "28.0",
+                    accuracy: "75%",
+                    speedGain: "+15%",
+                    comments: "Michael is making steady progress in his abacus journey. He has good understanding of addition and subtraction concepts but needs to work on his speed. I recommend practicing with timed exercises to improve calculation speed. He has shown 15% improvement in speed over the last month, which is good progress. Michael should focus on mastering addition and subtraction before moving on to more advanced concepts."
+                },
+                student3: {
+                    name: "Sarah Rodriguez",
+                    level: "Advanced 1",
+                    id: "#ABACUS-2023-1078",
+                    instructor: "Instructor Maria",
+                    skills: {
+                        addition: { mastery: 95, comment: "Exceptional speed and accuracy" },
+                        subtraction: { mastery: 92, comment: "Mastered complex subtraction" },
+                        multiplication: { mastery: 88, comment: "Excellent with large numbers" },
+                        division: { mastery: 85, comment: "Very good understanding" }
+                    },
+                    practiceHours: "45.5",
+                    accuracy: "94%",
+                    speedGain: "+18%",
+                    comments: "Sarah is an exceptional abacus student who has mastered all the basic operations and is now working on advanced mental calculation techniques. Her speed and accuracy are both excellent, and she has shown 18% improvement in speed over the last month. Sarah is now ready to move on to more complex calculations including decimals and percentages. I recommend participating in abacus competitions to further challenge her skills."
+                }
+            };
+            
+            // Initialize charts
+            const progressCtx = document.getElementById('progress-chart').getContext('2d');
+            const practiceCtx = document.getElementById('practice-chart').getContext('2d');
+            
+            const progressChart = new Chart(progressCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [
+                        {
+                            label: 'Addition',
+                            data: [65, 72, 78, 85],
+                            borderColor: '#6a11cb',
+                            backgroundColor: 'rgba(106, 17, 203, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Subtraction',
+                            data: [60, 68, 72, 78],
+                            borderColor: '#2575fc',
+                            backgroundColor: 'rgba(37, 117, 252, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Multiplication',
+                            data: [45, 52, 58, 65],
+                            borderColor: '#fd79a8',
+                            backgroundColor: 'rgba(253, 121, 168, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Division',
+                            data: [40, 47, 53, 60],
+                            borderColor: '#00b894',
+                            backgroundColor: 'rgba(0, 184, 148, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Mastery (%)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            const practiceChart = new Chart(practiceCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Practice Hours',
+                        data: [8, 9.5, 10, 9],
+                        backgroundColor: 'rgba(106, 17, 203, 0.7)',
+                        borderColor: 'rgba(106, 17, 203, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Hours'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Generate report based on selected student
+            generateBtn.addEventListener('click', function() {
+                const studentId = studentSelect.value;
+                const term = termSelect.value;
+                
+                if (students[studentId]) {
+                    const student = students[studentId];
+                    
+                    // Update student info
+                    document.querySelector('.info-value:first-child').textContent = student.name;
+                    document.querySelectorAll('.info-value')[1].textContent = student.level;
+                    document.querySelectorAll('.info-value')[2].textContent = student.id;
+                    document.querySelectorAll('.info-value')[3].textContent = student.instructor;
+                    
+                    // Update skills
+                    const skills = student.skills;
+                    const skillCards = document.querySelectorAll('.skill-card');
+                    
+                    skillCards[0].querySelector('.skill-value').textContent = skills.addition.mastery + "% Mastery";
+                    skillCards[0].querySelector('.skill-progress').style.width = skills.addition.mastery + "%";
+                    
+                    skillCards[1].querySelector('.skill-value').textContent = skills.subtraction.mastery + "% Mastery";
+                    skillCards[1].querySelector('.skill-progress').style.width = skills.subtraction.mastery + "%";
+                    
+                    skillCards[2].querySelector('.skill-value').textContent = skills.multiplication.mastery + "% Mastery";
+                    skillCards[2].querySelector('.skill-progress').style.width = skills.multiplication.mastery + "%";
+                    
+                    skillCards[3].querySelector('.skill-value').textContent = skills.division.mastery + "% Mastery";
+                    skillCards[3].querySelector('.skill-progress').style.width = skills.division.mastery + "%";
+                    
+                    // Update summary
+                    document.querySelectorAll('.summary-value')[0].textContent = student.practiceHours;
+                    document.querySelectorAll('.summary-value')[1].textContent = student.accuracy;
+                    document.querySelectorAll('.summary-value')[2].textContent = student.speedGain;
+                    
+                    // Update comments
+                    document.querySelector('.teacher-comment').innerHTML = `<p>${student.comments}</p>`;
+                    
+                    // Update learning period
+                    document.querySelector('.academic-term').textContent = 
+                        termSelect.options[termSelect.selectedIndex].text;
+                }
+            });
+            
+            // Compare with previous progress
+            compareBtn.addEventListener('click', function() {
+                alert('Progress comparison feature would show improvement over time');
+            });
+            
+            // Print report
+            printBtn.addEventListener('click', function() {
+                window.print();
+            });
+            
+            // Tab functionality
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show active tab content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Make abacus beads interactive for demonstration
+            const beads = document.querySelectorAll('.abacus-bead');
+            beads.forEach(bead => {
+                bead.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                });
+            });
+            
+            // Initialize with first student data
+            generateBtn.click();
+        });
+    </script>
+</body>
+</html>
