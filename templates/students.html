@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student List - TinyBeads</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* Add minimal styling or reuse your existing CSS */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 20px;
+      background: #f5f7fa;
+      color: #2d3748;
+    }
+    h1 {
+      color: #4361ee;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      border-radius: 10px;
+    }
+    th, td {
+      padding: 15px 20px;
+      border-bottom: 1px solid #e9ecef;
+      text-align: left;
+    }
+    th {
+      background: #f8f9fa;
+      color: #6c757d;
+      font-weight: 600;
+    }
+    tr:hover {
+      background: #f9fafb;
+    }
+    a.back-link {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #4361ee;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    a.back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="{{ url_for('studentreg') }}" class="back-link">&#8592; Back to Student Registration</a>
+
+  <h1>Student List</h1>
+
+  {% if students %}
+    <table>
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+          <tr>
+            <td>{{ student.name }}</td>
+            <td>{{ student.age }}</td>
+            <td>{{ student.gender }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No students found yet.</p>
+  {% endif %}
+
+</body>
+</html>

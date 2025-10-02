@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management - TinyBeads</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Management - TinyBeads</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    /* Add your existing CSS here */
+    /* (Same as your previous style block for layout and colors) */
+
         * {
             margin: 0;
             padding: 0;
@@ -448,513 +450,93 @@
                 text-decoration: underline;
             }
         }
-    </style>
+  </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="header-content">
-            <a href="dashboard.html" class="logo">
-                <i class="fas fa-bezier-curve"></i> TinyBeads
-            </a>
-        </div>
-    </header>
+  <header>
+    <div class="header-content">
+      <a href="dashboard.html" class="logo">
+        <i class="fas fa-bezier-curve"></i> TinyBeads
+      </a>
+    </div>
+  </header>
 
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
-        <a href="dashboard.html" class="back-link">&#8592; BACK</a>
+  <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <a href="{{ url_for('dashboard') }}" class="back-link">&#8592; BACK</a>
+  </div>
+
+  <div class="main-container">
+    <div class="page-header">
+      <h1 class="page-title">Student Management</h1>
+      <a href="{{ url_for('studentreg') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Student
+      </a>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-container">
-        <div class="page-header">
-            <h1 class="page-title">Student Management</h1>
-            <button class="btn btn-primary" id="toggleFormBtn">
-                <i class="fas fa-plus"></i> Add Student
-            </button>
-        </div>
-
-        <!-- Add Student Form (Initially Hidden) -->
-        <div class="form-container" id="studentForm" style="display: none;">
-            <h2 class="form-title">Add New Student</h2>
-            <form id="addStudentForm">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="studentName">Student Name *</label>
-                        <input type="text" id="studentName" class="form-control" placeholder="Enter student name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="parentName">Parent Name *</label>
-                        <input type="text" id="parentName" class="form-control" placeholder="Enter parent name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Address *</label>
-                        <input type="text" id="address" class="form-control" placeholder="Enter address" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="dob">Date of Birth *</label>
-                        <input type="date" id="dob" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="age">Age *</label>
-                        <input type="number" id="age" class="form-control" placeholder="Enter age" min="3" max="18" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="standard">Standard/Grade *</label>
-                        <input type="text" id="standard" class="form-control" placeholder="Enter standard/grade" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="mobile">Mobile Number *</label>
-                        <input type="tel" id="mobile" class="form-control" placeholder="Enter 10-digit mobile number" required maxlength="10">
-                        <div class="error-message" id="mobileError">Mobile number must be exactly 10 digits</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="whatsapp">WhatsApp Number *</label>
-                        <input type="tel" id="whatsapp" class="form-control" placeholder="Enter 10-digit WhatsApp number" required maxlength="10">
-                        <div class="error-message" id="whatsappError">WhatsApp number must be exactly 10 digits</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Gender *</label>
-                        <div class="radio-group">
-                            <div class="radio-option">
-                                <input type="radio" id="male" name="gender" value="male" required>
-                                <label for="male">Male</label>
-                            </div>
-                            <div class="radio-option">
-                                <input type="radio" id="female" name="gender" value="female">
-                                <label for="female">Female</label>
-                            </div>
-                            <div class="radio-option">
-                                <input type="radio" id="other" name="gender" value="other">
-                                <label for="other">Other</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="location">Location</label>
-                        <input type="text" id="location" class="form-control" placeholder="Enter location">
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline" id="cancelBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Student</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Student List -->
-        <div class="student-list-container">
-            <div class="list-header">
-                <h2 class="list-title">Student List</h2>
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search students...">
-                </div>
+    <!-- Student registration form -->
+    <div class="form-container">
+      <h2 class="form-title">Add New Student</h2>
+      <form id="addStudentForm" method="POST" action="{{ url_for('studentreg') }}">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">Student Name *</label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="Enter student name" required />
+          </div>
+          <div class="form-group">
+            <label for="parent">Parent Name *</label>
+            <input type="text" id="parent" name="parent" class="form-control" placeholder="Enter parent name" required />
+          </div>
+          <div class="form-group">
+            <label for="address">Address *</label>
+            <input type="text" id="address" name="address" class="form-control" placeholder="Enter address" required />
+          </div>
+          <div class="form-group">
+            <label for="dob">Date of Birth *</label>
+            <input type="date" id="dob" name="dob" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="age">Age *</label>
+            <input type="number" id="age" name="age" class="form-control" placeholder="Enter age" min="3" max="18" required />
+          </div>
+          <div class="form-group">
+            <label for="standard">Standard/Grade *</label>
+            <input type="text" id="standard" name="standard" class="form-control" placeholder="Enter standard/grade" required />
+          </div>
+          <div class="form-group">
+            <label for="mobile">Mobile Number *</label>
+            <input type="tel" id="mobile" name="mobile" class="form-control" placeholder="Enter 10-digit mobile number" maxlength="10" required />
+          </div>
+          <div class="form-group">
+            <label for="whatsapp">WhatsApp Number *</label>
+            <input type="tel" id="whatsapp" name="whatsapp" class="form-control" placeholder="Enter 10-digit WhatsApp number" maxlength="10" required />
+          </div>
+          <div class="form-group">
+            <label>Gender *</label>
+            <div class="radio-group">
+              <div class="radio-option">
+                <input type="radio" id="male" name="gender" value="male" required />
+                <label for="male">Male</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="female" name="gender" value="female" />
+                <label for="female">Female</label>
+              </div>
+              <div class="radio-option">
+                <input type="radio" id="other" name="gender" value="other" />
+                <label for="other">Other</label>
+              </div>
             </div>
-            <table class="student-table">
-                <thead>
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Parent Name</th>
-                        <th>Standard</th>
-                        <th>Age</th>
-                        <th>Mobile</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="studentsTableBody">
-                    <!-- Student data will be populated here -->
-                </tbody>
-            </table>
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <i class="fas fa-user-graduate"></i>
-                <h3>No students found</h3>
-                <p>Try adjusting your search or add a new student</p>
-            </div>
+          </div>
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" class="form-control" placeholder="Enter location" />
+          </div>
         </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Student</button>
+        </div>
+      </form>
     </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal" id="deleteModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Confirm Delete</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete <strong id="deleteStudentName"></strong>? This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelDeleteBtn">Cancel</button>
-                <button class="btn btn-primary" id="confirmDeleteBtn" style="background: var(--danger);">Delete</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Validation Error Modal -->
-    <div class="modal" id="validationModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Validation Error</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body" id="validationMessage">
-                <!-- Error message will be inserted here -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="closeValidationBtn">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Sample student data (in a real app, this would come from a database)
-        let students = [
-            { id: '1712585009545', name: 'Aishna S', parent: 'Parent 1', standard: 'Level 1', age: 7, gender: 'female', mobile: '9876543210' },
-            { id: '1713415817388', name: 'Hamdan N', parent: 'Parent 2', standard: 'Level 2', age: 8, gender: 'male', mobile: '8765432109' },
-            { id: '1712584218268', name: 'Adhvik Jyothis', parent: 'Parent 3', standard: 'Level 1', age: 6, gender: 'male', mobile: '7654321098' },
-            { id: '1712583561162', name: 'Advika V', parent: 'Parent 4', standard: 'Level 1', age: 7, gender: 'female', mobile: '6543210987' },
-            { id: '1712583914371', name: 'Alayna C', parent: 'Parent 5', standard: 'Level 1', age: 7, gender: 'female', mobile: '5432109876' },
-            { id: '1727272960147', name: 'Bhavika G Pillai', parent: 'Parent 6', standard: 'Level 2', age: 9, gender: 'female', mobile: '4321098765' },
-            { id: '1749274067019', name: 'Bhumika', parent: 'Gopakumar Pillai', standard: 'Level 3', age: 10, gender: 'female', mobile: '3210987654' },
-            { id: '17396888074', name: 'Saliha Nasrin', parent: 'Parent 8', standard: 'Level 2', age: 8, gender: 'female', mobile: '2109876543' }
-        ];
-
-        // DOM elements
-        const toggleFormBtn = document.getElementById('toggleFormBtn');
-        const studentForm = document.getElementById('studentForm');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const addStudentForm = document.getElementById('addStudentForm');
-        const studentsTableBody = document.getElementById('studentsTableBody');
-        const searchInput = document.getElementById('searchInput');
-        const emptyState = document.getElementById('emptyState');
-        const deleteModal = document.getElementById('deleteModal');
-        const deleteStudentName = document.getElementById('deleteStudentName');
-        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        const closeBtn = document.querySelector('.close-btn');
-        const validationModal = document.getElementById('validationModal');
-        const validationMessage = document.getElementById('validationMessage');
-        const closeValidationBtn = document.getElementById('closeValidationBtn');
-        const mobileInput = document.getElementById('mobile');
-        const whatsappInput = document.getElementById('whatsapp');
-        const mobileError = document.getElementById('mobileError');
-        const whatsappError = document.getElementById('whatsappError');
-
-        // Current student to be deleted
-        let currentDeleteId = null;
-
-        // Toggle form visibility
-        toggleFormBtn.addEventListener('click', () => {
-            studentForm.style.display = studentForm.style.display === 'none' ? 'block' : 'none';
-        });
-
-        cancelBtn.addEventListener('click', () => {
-            studentForm.style.display = 'none';
-            addStudentForm.reset();
-            resetValidation();
-        });
-
-        // Search functionality
-        searchInput.addEventListener('input', function() {
-            renderStudentsTable();
-        });
-
-        // Mobile number validation
-        mobileInput.addEventListener('input', function() {
-            validateMobileNumber(this, mobileError);
-        });
-
-        whatsappInput.addEventListener('input', function() {
-            validateMobileNumber(this, whatsappError);
-        });
-
-        // Function to validate mobile number
-        function validateMobileNumber(input, errorElement) {
-            const value = input.value.trim();
-            
-            // Allow only numbers
-            input.value = value.replace(/\D/g, '');
-            
-            // Validate length
-            if (input.value.length === 10) {
-                input.classList.remove('error');
-                errorElement.style.display = 'none';
-                return true;
-            } else {
-                input.classList.add('error');
-                errorElement.style.display = 'block';
-                return false;
-            }
-        }
-
-        // Reset validation styles
-        function resetValidation() {
-            mobileInput.classList.remove('error');
-            whatsappInput.classList.remove('error');
-            mobileError.style.display = 'none';
-            whatsappError.style.display = 'none';
-        }
-
-        // Show validation error modal
-        function showValidationError(message) {
-            validationMessage.textContent = message;
-            validationModal.style.display = 'flex';
-        }
-
-        // Close validation modal
-        function closeValidationModal() {
-            validationModal.style.display = 'none';
-        }
-
-        // Populate students table with search filter
-        function renderStudentsTable() {
-            studentsTableBody.innerHTML = '';
-            
-            const searchTerm = searchInput.value.toLowerCase();
-            const filteredStudents = students.filter(student => 
-                student.name.toLowerCase().includes(searchTerm) ||
-                student.parent.toLowerCase().includes(searchTerm) ||
-                student.standard.toLowerCase().includes(searchTerm) ||
-                student.age.toString().includes(searchTerm) ||
-                student.mobile.includes(searchTerm)
-            );
-            
-            if (filteredStudents.length === 0) {
-                emptyState.style.display = 'block';
-                return;
-            }
-            
-            emptyState.style.display = 'none';
-            
-            filteredStudents.forEach(student => {
-                const row = document.createElement('tr');
-                
-                row.innerHTML = `
-                    <td>
-                        <div>${student.name}</div>
-                        <div class="student-id">ID: ${student.id}</div>
-                    </td>
-                    <td>${student.parent || 'Not specified'}</td>
-                    <td>${student.standard}</td>
-                    <td>${student.age}</td>
-                    <td>${student.mobile}</td>
-                    <td>
-                        <button class="action-btn edit-btn" data-id="${student.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn delete delete-btn" data-id="${student.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                
-                studentsTableBody.appendChild(row);
-            });
-            
-            // Add event listeners to action buttons
-            document.querySelectorAll('.edit-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const studentId = this.getAttribute('data-id');
-                    editStudent(studentId);
-                });
-            });
-            
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const studentId = this.getAttribute('data-id');
-                    showDeleteModal(studentId);
-                });
-            });
-        }
-
-        // Show delete confirmation modal
-        function showDeleteModal(studentId) {
-            const student = students.find(s => s.id === studentId);
-            if (student) {
-                currentDeleteId = studentId;
-                deleteStudentName.textContent = student.name;
-                deleteModal.style.display = 'flex';
-            }
-        }
-
-        // Close modal
-        function closeModal() {
-            deleteModal.style.display = 'none';
-            currentDeleteId = null;
-        }
-
-        // Edit student function
-        function editStudent(studentId) {
-            const student = students.find(s => s.id === studentId);
-            if (student) {
-                // Populate form with student data
-                document.getElementById('studentName').value = student.name;
-                document.getElementById('parentName').value = student.parent;
-                document.getElementById('standard').value = student.standard;
-                document.getElementById('age').value = student.age;
-                document.getElementById('mobile').value = student.mobile;
-                document.getElementById('whatsapp').value = student.mobile; // Default to same as mobile
-                
-                // Set gender
-                if (student.gender) {
-                    document.querySelector(`input[name="gender"][value="${student.gender}"]`).checked = true;
-                }
-                
-                // Show the form
-                studentForm.style.display = 'block';
-                
-                // Scroll to form
-                studentForm.scrollIntoView({ behavior: 'smooth' });
-                
-                // Change form to edit mode
-                const submitBtn = addStudentForm.querySelector('button[type="submit"]');
-                submitBtn.textContent = 'Update Student';
-                
-                // Remove previous edit event listener if any
-                addStudentForm.onsubmit = null;
-                
-                // Add update functionality
-                addStudentForm.onsubmit = function(e) {
-                    e.preventDefault();
-                    
-                    // Validate mobile numbers
-                    const isMobileValid = validateMobileNumber(mobileInput, mobileError);
-                    const isWhatsappValid = validateMobileNumber(whatsappInput, whatsappError);
-                    
-                    if (!isMobileValid || !isWhatsappValid) {
-                        showValidationError("Please ensure both mobile numbers are exactly 10 digits");
-                        return;
-                    }
-                    
-                    // Update student data
-                    student.name = document.getElementById('studentName').value;
-                    student.parent = document.getElementById('parentName').value;
-                    student.standard = document.getElementById('standard').value;
-                    student.age = document.getElementById('age').value;
-                    student.mobile = document.getElementById('mobile').value;
-                    student.gender = document.querySelector('input[name="gender"]:checked').value;
-                    
-                    // Reset form and UI
-                    addStudentForm.reset();
-                    studentForm.style.display = 'none';
-                    submitBtn.textContent = 'Save Student';
-                    
-                    // Render updated table
-                    renderStudentsTable();
-                    
-                    // Show success message
-                    alert(`Student ${student.name} updated successfully!`);
-                    
-                    // Reset form handler
-                    addStudentForm.onsubmit = addStudentHandler;
-                };
-            }
-        }
-
-        // Form submission handler
-        function addStudentHandler(e) {
-            e.preventDefault();
-            
-            // Validate mobile numbers
-            const isMobileValid = validateMobileNumber(mobileInput, mobileError);
-            const isWhatsappValid = validateMobileNumber(whatsappInput, whatsappError);
-            
-            if (!isMobileValid || !isWhatsappValid) {
-                showValidationError("Please ensure both mobile numbers are exactly 10 digits");
-                return;
-            }
-            
-            // Get form values
-            const name = document.getElementById('studentName').value;
-            const parent = document.getElementById('parentName').value;
-            const standard = document.getElementById('standard').value;
-            const age = document.getElementById('age').value;
-            const mobile = document.getElementById('mobile').value;
-            const gender = document.querySelector('input[name="gender"]:checked').value;
-            
-            // Generate a random ID (in a real app, this would come from the server)
-            const id = Date.now().toString();
-            
-            // Add to students array
-            students.push({
-                id,
-                name,
-                parent,
-                standard,
-                age: parseInt(age),
-                mobile,
-                gender
-            });
-            
-            // Update table
-            renderStudentsTable();
-            
-            // Reset and hide form
-            addStudentForm.reset();
-            studentForm.style.display = 'none';
-            resetValidation();
-            
-            // Show success message
-            alert(`Student ${name} added successfully!`);
-        }
-
-        // Delete student function
-        function deleteStudent(studentId) {
-            students = students.filter(student => student.id !== studentId);
-            renderStudentsTable();
-            closeModal();
-            alert('Student deleted successfully!');
-        }
-
-        // Event listeners for modals
-        cancelDeleteBtn.addEventListener('click', closeModal);
-        closeBtn.addEventListener('click', closeModal);
-        confirmDeleteBtn.addEventListener('click', () => {
-            if (currentDeleteId) {
-                deleteStudent(currentDeleteId);
-            }
-        });
-
-        closeValidationBtn.addEventListener('click', closeValidationModal);
-
-        // Close modal when clicking outside
-        window.addEventListener('click', function(e) {
-            if (e.target === deleteModal) {
-                closeModal();
-            }
-            if (e.target === validationModal) {
-                closeValidationModal();
-            }
-        });
-
-        // Auto calculate age based on date of birth
-        document.getElementById('dob').addEventListener('change', function() {
-            const dob = new Date(this.value);
-            const today = new Date();
-            let age = today.getFullYear() - dob.getFullYear();
-            const monthDiff = today.getMonth() - dob.getMonth();
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-                age--;
-            }
-            
-            document.getElementById('age').value = age;
-        });
-
-        // Copy mobile number to WhatsApp field if same
-        document.getElementById('mobile').addEventListener('blur', function() {
-            const whatsappField = document.getElementById('whatsapp');
-            if (!whatsappField.value) {
-                whatsappField.value = this.value;
-                validateMobileNumber(whatsappField, whatsappError);
-            }
-        });
-
-        // Set form handler
-        addStudentForm.onsubmit = addStudentHandler;
-
-        // Initialize the page
-        renderStudentsTable();
-    </script>
+  </div>
 </body>
 </html>
