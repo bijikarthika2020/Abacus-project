@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Book</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 28px;
+        }
+        
+        h2 {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 25px 0 15px;
+            font-size: 20px;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin: 20px 0 10px;
+            font-size: 18px;
+        }
+        
+        .level {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 5px 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .level.selected {
+            background-color: #e1f5fe;
+            border-left-color: #0288d1;
+        }
+        
+        .level-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .amount {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        
+        .level-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 20px;
+            text-align: center;
+        }
+        
+        .btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .add-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .add-btn:hover {
+            background-color: #388E3C;
+        }
+        
+        .remove-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .remove-btn:hover {
+            background-color: #d32f2f;
+        }
+        
+        .remove-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 25px 0;
+        }
+        
+        .order-total {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            margin: 25px 0;
+            color: #2c3e50;
+        }
+        
+        .pay-button {
+            display: block;
+            width: 100%;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        
+        .pay-button:hover {
+            background-color: #219653;
+        }
+        
+        .additional-level {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px dashed #e0e0e0;
+        }
+        
+        .arrow {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .cart-summary {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Order Book</h1>
+        
+        <h2>STUDENTS BOOK</h2>
+        
+        <h3>Levels</h3>
+        
+        <div class="level" data-name="JUNIOR ABACUS BOOKS" data-price="500">
+            <div class="level-title">Junior Abacus</div>
+            <div class="level-controls">
+                <button class="btn remove-btn" disabled>-</button>
+                <span class="quantity">0</span>
+                <button class="btn add-btn">+</button>
+            </div>
+            <div class="amount">₹500</div>
+        </div>
+        
+        <div class="level" data-name="Student Level-1" data-price="500">
+            <div class="level-title">Student Level-1</div>
+            <div class="level-controls">
+                <button class="btn remove-btn" disabled>-</button>
+                <span class="quantity">0</span>
+                <button class="btn add-btn">+</button>
+            </div>
+            <div class="amount">₹500</div>
+        </div>
+        
+        <div class="level" data-name="Student Level-2" data-price="250">
+            <div class="level-title">Student Level-2</div>
+            <div class="level-controls">
+                <button class="btn remove-btn" disabled>-</button>
+                <span class="quantity">0</span>
+                <button class="btn add-btn">+</button>
+            </div>
+            <div class="amount">₹250</div>
+        </div>
+        
+        <div class="level" data-name="Student Level-3" data-price="250">
+            <div class="level-title">Student Level-3</div>
+            <div class="level-controls">
+                <button class="btn remove-btn" disabled>-</button>
+                <span class="quantity">0</span>
+                <button class="btn add-btn">+</button>
+            </div>
+            <div class="amount">₹250</div>
+        </div>
+        
+        <div class="level" data-name="Student Level-4" data-price="250">
+            <div class="level-title">Student Level-4</div>
+            <div class="level-controls">
+                <button class="btn remove-btn" disabled>-</button>
+                <span class="quantity">0</span>
+                <button class="btn add-btn">+</button>
+            </div>
+            <div class="amount">₹250</div>
+        </div>
+        
+        <div class="level" data-name="Student Level-5" data-price="250">
+            <div class="level-title">Student Level-5</div>
+            <div class="level-controls">
+                <button class="btn remove-btn" disabled>-</button>
+                <span class="quantity">0</span>
+                <button class="btn add-btn">+</button>
+            </div>
+            <div class="amount">₹250</div>
+        </div>
+        
+        <div class="level" data-name="Student Level-6" data-price="250">
+            <div class="level-title">Student Level-6</div>
+            <div class="level-controls">
+                <button class="btn remove-btn" disabled>-</button>
+                <span class="quantity">0</span>
+                <button class="btn add-btn">+</button>
+            </div>
+            <div class="amount">₹250</div>
+        </div>
+        
+        
+        <div class="divider"></div>
+        
+        <div class="cart-summary">
+            <h3>Selected Books</h3>
+            <div id="cart-items" class="empty-cart">No books selected</div>
+        </div>
+        
+        <div class="order-total">Order Total: ₹<span id="total-amount">0</span></div>
+        
+        <button class="pay-button">Pay Now</button>
+        
+        
+            
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const levels = document.querySelectorAll('.level');
+            const totalAmountElement = document.getElementById('total-amount');
+            const cartItemsElement = document.getElementById('cart-items');
+            
+            let cart = [];
+            let totalAmount = 0;
+            
+            // Initialize each level
+            levels.forEach(level => {
+                const addBtn = level.querySelector('.add-btn');
+                const removeBtn = level.querySelector('.remove-btn');
+                const quantityElement = level.querySelector('.quantity');
+                
+                let quantity = 0;
+                const name = level.dataset.name;
+                const price = parseInt(level.dataset.price);
+                
+                // Add button click handler
+                addBtn.addEventListener('click', function() {
+                    quantity++;
+                    quantityElement.textContent = quantity;
+                    
+                    // Enable remove button
+                    removeBtn.disabled = false;
+                    
+                    // Update cart
+                    updateCart(name, price, quantity);
+                    
+                    // Update level appearance
+                    level.classList.add('selected');
+                });
+                
+                // Remove button click handler
+                removeBtn.addEventListener('click', function() {
+                    if (quantity > 0) {
+                        quantity--;
+                        quantityElement.textContent = quantity;
+                        
+                        // Disable remove button if quantity is 0
+                        if (quantity === 0) {
+                            removeBtn.disabled = true;
+                            level.classList.remove('selected');
+                        }
+                        
+                        // Update cart
+                        updateCart(name, price, quantity);
+                    }
+                });
+            });
+            
+            // Function to update cart and total
+            function updateCart(name, price, quantity) {
+                // Find if item already exists in cart
+                const existingItemIndex = cart.findIndex(item => item.name === name);
+                
+                if (quantity > 0) {
+                    // Update or add item to cart
+                    if (existingItemIndex !== -1) {
+                        cart[existingItemIndex].quantity = quantity;
+                        cart[existingItemIndex].total = price * quantity;
+                    } else {
+                        cart.push({
+                            name: name,
+                            price: price,
+                            quantity: quantity,
+                            total: price * quantity
+                        });
+                    }
+                } else {
+                    // Remove item from cart if quantity is 0
+                    if (existingItemIndex !== -1) {
+                        cart.splice(existingItemIndex, 1);
+                    }
+                }
+                
+                // Calculate total amount
+                totalAmount = cart.reduce((sum, item) => sum + item.total, 0);
+                
+                // Update UI
+                updateCartUI();
+                updateTotalUI();
+            }
+            
+            // Function to update cart UI
+            function updateCartUI() {
+                if (cart.length === 0) {
+                    cartItemsElement.innerHTML = '<div class="empty-cart">No books selected</div>';
+                    return;
+                }
+                
+                let cartHTML = '';
+                cart.forEach(item => {
+                    cartHTML += `
+                        <div class="cart-item">
+                            <span>${item.name} (x${item.quantity})</span>
+                            <span>₹${item.total}</span>
+                        </div>
+                    `;
+                });
+                
+                cartItemsElement.innerHTML = cartHTML;
+            }
+            
+            // Function to update total UI
+            function updateTotalUI() {
+                totalAmountElement.textContent = totalAmount;
+            }
+            
+            // Pay button handler
+            document.querySelector('.pay-button').addEventListener('click', function() {
+                if (totalAmount === 0) {
+                    alert('Please add at least one book to your order.');
+                    return;
+                }
+                
+                alert(`Payment of ₹${totalAmount} processed successfully!`);
+                
+                // Reset cart
+                cart = [];
+                totalAmount = 0;
+                
+                // Reset all quantities
+                levels.forEach(level => {
+                    const quantityElement = level.querySelector('.quantity');
+                    const removeBtn = level.querySelector('.remove-btn');
+                    
+                    quantityElement.textContent = '0';
+                    removeBtn.disabled = true;
+                    level.classList.remove('selected');
+                });
+                
+                // Update UI
+                updateCartUI();
+                updateTotalUI();
+            });
+        });
+    </script>
+</body>
+</html>
