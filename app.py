@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from pymongo import MongoClient
 from datetime import datetime
 import bcrypt
@@ -13,26 +13,35 @@ client = MongoClient('mongodb://localhost:27017/')
 db = client['tinybeads_db']
 users_collection = db['users']
 lessons_collection = db['lessons']
-students_collection = db['students']  # Added missing collection definition
+students_collection = db['students']
 
-
-# Video upload config
+# File upload config
 ALLOWED_EXTENSIONS = {'mp4', 'webm', 'ogg', 'mov', 'mkv'}
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads', 'videos')
-MAX_CONTENT_LENGTH = 200 * 1024 * 1024  # 200 MB
+ALLOWED_NOTES = {'pdf', 'doc', 'docx', 'txt'}
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+VIDEO_FOLDER = os.path.join(UPLOAD_FOLDER, 'videos')
+NOTES_FOLDER = os.path.join(UPLOAD_FOLDER, 'notes')
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024
 
+# Create upload directories if they don't exist
+os.makedirs(VIDEO_FOLDER, exist_ok=True)
+os.makedirs(NOTES_FOLDER, exist_ok=True)
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
+def allowed_file(filename, file_type='video'):
+    if '.' not in filename:
+        return False
+    ext = filename.rsplit('.', 1)[1].lower()
+    if file_type == 'video':
+        return ext in ALLOWED_EXTENSIONS
+    elif file_type == 'notes':
+        return ext in ALLOWED_NOTES
+    return False
 
 @app.route('/')
 def home():
     return render_template("base.html")
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -65,7 +74,6 @@ def register():
 
     return render_template("register.html")
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -93,14 +101,13 @@ def login():
 
     return render_template("login.html")
 
-
 @app.route('/dashboard')
 def dashboard():
     if session.get('loggedin') and session.get('user_type') == 'student':
         total_students = users_collection.count_documents({'user_type': 'student'})
         active_courses = lessons_collection.distinct('course')
-        avg_progress = 78  # calculate this for real later
-        achievements = 156 # you should calculate this too
+        avg_progress = 78
+        achievements = 156
         return render_template(
             'dashboard.html',
             total_students=total_students,
@@ -110,13 +117,20 @@ def dashboard():
         )
     return redirect(url_for('login'))
 
-
 @app.route('/teacher')
 def teacher():
     if session.get('loggedin') and session.get('user_type') == 'teacher':
-        return render_template('teacher.html')
+        # Get teacher's uploaded materials
+        teacher_materials = list(lessons_collection.find({
+            'teacher_email': session.get('email')
+        }).sort('uploaded_at', -1))
+        
+        # Convert ObjectId to string for JSON serialization
+        for material in teacher_materials:
+            material['_id'] = str(material['_id'])
+            
+        return render_template('teacher.html', materials=teacher_materials)
     return redirect(url_for('login'))
-
 
 @app.route('/teacher/lesson', methods=['GET', 'POST'])
 def upload_lesson():
@@ -126,45 +140,61 @@ def upload_lesson():
             description = request.form.get('description', '').strip()
             course = request.form.get('course', '').strip()
             video = request.files.get('video')
+            notes = request.files.get('notes')
 
             if not title or not video or video.filename == '':
                 flash('Please provide a title and video file.', 'danger')
                 return redirect(url_for('upload_lesson'))
 
-            if not allowed_file(video.filename):
-                flash('Invalid file type! Allowed: ' + ', '.join(ALLOWED_EXTENSIONS), 'danger')
+            if not allowed_file(video.filename, 'video'):
+                flash('Invalid video file type! Allowed: ' + ', '.join(ALLOWED_EXTENSIONS), 'danger')
                 return redirect(url_for('upload_lesson'))
 
-            filename = secure_filename(f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{video.filename}")
-            video.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            video_url = f"/static/uploads/videos/{filename}"
+            # Save video file
+            video_filename = secure_filename(f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{video.filename}")
+            video_path = os.path.join(VIDEO_FOLDER, video_filename)
+            video.save(video_path)
+            video_url = f"/static/uploads/videos/{video_filename}"
 
-            lessons_collection.insert_one({
+            # Save notes file if provided
+            notes_filename = None
+            notes_url = None
+            if notes and notes.filename:
+                if allowed_file(notes.filename, 'notes'):
+                    notes_filename = secure_filename(f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{notes.filename}")
+                    notes_path = os.path.join(NOTES_FOLDER, notes_filename)
+                    notes.save(notes_path)
+                    notes_url = f"/static/uploads/notes/{notes_filename}"
+                else:
+                    flash('Invalid notes file type! Allowed: PDF, DOC, DOCX, TXT', 'warning')
+
+            # Save to database
+            lesson_data = {
                 'title': title,
                 'description': description,
                 'course': course,
-                'filename': filename,
+                'video_filename': video_filename,
                 'video_url': video_url,
-                'mimetype': video.mimetype,
+                'notes_filename': notes_filename,
+                'notes_url': notes_url,
                 'teacher_email': session.get('email'),
-                'uploaded_at': datetime.utcnow()(),
+                'uploaded_at': datetime.utcnow(),
                 'published': True
-            })
-
-            flash('Lesson uploaded successfully.', 'success')
+            }
+            
+            result = lessons_collection.insert_one(lesson_data)
+            flash('Lesson uploaded successfully!', 'success')
             return redirect(url_for('teacher'))
 
         return render_template('lesson.html')
-
+    
     flash('Please login as a teacher to upload lessons.', 'danger')
     return redirect(url_for('login'))
-
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
-
 
 @app.route('/course')
 def courses():
@@ -178,12 +208,11 @@ def courses():
         query['course'] = course_filter
 
     lessons = list(lessons_collection.find(query).sort('uploaded_at', -1))
-    # Convert _id to string for URLs
+    # Convert _id to string for templates
     for lesson in lessons:
         lesson['_id'] = str(lesson['_id'])
 
     return render_template('course.html', lessons=lessons, course=course_filter)
-
 
 @app.route("/api/materials")
 def get_materials():
@@ -198,12 +227,11 @@ def get_materials():
             "description": lesson["description"],
             "course": lesson["course"],
             "teacher_email": lesson["teacher_email"],
-            "video_url": url_for("static", filename="uploads/videos/" + lesson["filename"]),
+            "video_url": lesson["video_url"],
             "notes_url": lesson.get("notes_url"),
-            "thumbnail": lesson.get("thumbnail") or None
+            "uploaded_at": lesson["uploaded_at"].strftime("%Y-%m-%d %H:%M")
         })
     return jsonify(results)
-
 
 @app.route('/studentreg', methods=['GET', 'POST'])
 def studentreg():
@@ -221,25 +249,18 @@ def studentreg():
                 'gender': request.form['gender'],
                 'location': request.form['location']
             }
-            print("Inserting student:", student)
             result = students_collection.insert_one(student)
-            print("Inserted with id:", result.inserted_id)
             flash('Student added successfully!', 'success')
             return redirect(url_for('students'))
         except Exception as e:
-            print("Error inserting student:", e)
             flash(f'Error occurred: {e}', 'danger')
             return redirect(url_for('studentreg'))
     return render_template('studentreg.html')
 
-
-
-# List students from MongoDB
 @app.route('/students')
 def students():
     students = list(students_collection.find())
     return render_template('students.html', students=students)
-
 
 @app.route('/lesson')
 def lesson():
@@ -260,7 +281,6 @@ def activities():
 @app.route('/help')
 def help():
     return render_template('help.html')
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=5050)

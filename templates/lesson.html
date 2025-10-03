@@ -9,7 +9,6 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
   />
   <style>
-    /* Same CSS as your original lesson.html */
     * {
       margin: 0;
       padding: 0;
@@ -26,7 +25,7 @@
     header { background: #5c6bc0; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
     .logo { font-size: 24px; font-weight: bold; display: flex; align-items: center; }
     .logo-icon { margin-right: 10px; font-size: 28px; }
-    .teacher-info { display: flex; align-items: center; }
+    .teacher-info { display: flex; align-items: center; gap: 15px; }
     .teacher-info span.back-link { cursor: pointer; color: white; font-weight: 600; font-size: 18px; user-select: none; }
     .content { padding: 25px; }
     .page-title { color: #5c6bc0; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e8eaf6; }
@@ -76,6 +75,8 @@
     .video-player { width: 100%; max-height: 60vh; }
     .delete-btn { position: absolute; top: 10px; right: 10px; background: rgba(239,83,80,0.9); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity 0.3s ease; z-index: 10; }
     .material-card:hover .delete-btn { opacity: 1; }
+    .empty-state { grid-column: 1 / -1; text-align: center; padding: 40px; color: #666; }
+    .empty-state i { font-size: 50px; margin-bottom: 15px; color: #9fa8da; }
     @media (max-width:768px){.materials-grid{grid-template-columns:1fr;}.stats{flex-direction:column;}.delete-btn{opacity:1;}}
   </style>
 </head>
@@ -83,66 +84,71 @@
 <div class="container">
   <header>
     <div class="logo"><span class="logo-icon">🧮</span> Abacus Academy Teacher Portal</div>
-    <div class="teacher-info"><span class="back-link" onclick="history.back()"> BACK</span></div>
+    <div class="teacher-info">
+      <a href="{{ url_for('teacher') }}" style="color: white; text-decoration: none;">
+        <span class="back-link">BACK TO TEACHER PORTAL</span>
+      </a>
+    </div>
   </header>
   <div class="content">
     <h1 class="page-title">Lesson Materials Management</h1>
-    <div class="stats">
-      <div class="stat-item"><h3>Total Videos</h3><p id="total-videos">0</p></div>
-      <div class="stat-item"><h3>Total Notes</h3><p id="total-notes">0</p></div>
-    </div>
-    <div class="filter-bar">
-      <div class="search-box">
-        <input type="text" id="search-input" placeholder="Search materials..." autocomplete="off"/>
-        <button class="search-btn" id="search-btn"><i class="fas fa-search"></i></button>
-      </div>
-      <div class="filter-options">
-        <select id="category-filter">
-          <option value="all">All Categories</option>
-          <option value="introduction">Introduction</option>
-          <option value="addition">Addition</option>
-          <option value="subtraction">Subtraction</option>
-          <option value="multiplication">Multiplication</option>
-          <option value="division">Division</option>
-          <option value="advanced">Advanced Techniques</option>
-        </select>
-      </div>
-    </div>
-    <div class="materials-grid" id="materials-grid"></div>
-
+    
     <div class="upload-section">
       <h2><i class="fas fa-upload"></i> Upload New Material</h2>
-      <form id="upload-form">
+      <form id="upload-form" action="{{ url_for('upload_lesson') }}" method="POST" enctype="multipart/form-data">
         <div class="form-group">
-          <label for="title">Title</label>
-          <input type="text" id="title" placeholder="Enter lesson title" required/>
+          <label for="title">Title *</label>
+          <input type="text" id="title" name="title" placeholder="Enter lesson title" required/>
         </div>
         <div class="form-group">
-          <label for="description">Description</label>
-          <textarea id="description" placeholder="Enter lesson description" required></textarea>
+          <label for="description">Description *</label>
+          <textarea id="description" name="description" placeholder="Enter lesson description" required></textarea>
         </div>
         <div class="form-group">
-          <label>Category</label>
-          <select id="category" required>
-            <option value="">Select a category</option>
-            <option value="introduction">Introduction</option>
-            <option value="addition">Addition</option>
-            <option value="subtraction">Subtraction</option>
-            <option value="multiplication">Multiplication</option>
-            <option value="division">Division</option>
-            <option value="advanced">Advanced Techniques</option>
-          </select>
+          <label for="course">Course/Category *</label>
+          <input type="text" id="course" name="course" placeholder="e.g., Introduction, Addition, Subtraction, etc." required/>
         </div>
         <div class="form-group">
-          <label>Upload Video</label>
-          <div class="file-upload" id="video-upload"><i class="fas fa-video"></i><p>Click to upload a video file</p><p id="video-name"></p><input type="file" id="video-file" accept="video/*" style="display:none;" required/></div>
+          <label>Upload Video *</label>
+          <div class="file-upload" id="video-upload">
+            <i class="fas fa-video"></i>
+            <p>Click to upload a video file (MP4, WebM, OGG, MOV, MKV)</p>
+            <p id="video-name"></p>
+            <input type="file" id="video-file" name="video" accept="video/*" style="display:none;" required/>
+          </div>
         </div>
         <div class="form-group">
-          <label>Upload Notes (PDF)</label>
-          <div class="file-upload" id="notes-upload"><i class="fas fa-file-pdf"></i><p>Click to upload notes (PDF)</p><p id="notes-name"></p><input type="file" id="notes-file" accept=".pdf" style="display:none;"/></div>
+          <label>Upload Notes (Optional)</label>
+          <div class="file-upload" id="notes-upload">
+            <i class="fas fa-file-pdf"></i>
+            <p>Click to upload notes (PDF, DOC, DOCX, TXT)</p>
+            <p id="notes-name"></p>
+            <input type="file" id="notes-file" name="notes" accept=".pdf,.doc,.docx,.txt" style="display:none;"/>
+          </div>
         </div>
         <button type="submit" class="btn"><i class="fas fa-cloud-upload-alt"></i> Upload Material</button>
       </form>
+    </div>
+
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="notification {% if category == 'danger' %}error{% else %}show{% endif %}" style="position: relative; transform: none; margin: 20px 0;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h2 style="margin-top: 40px; color: #5c6bc0;">Your Uploaded Materials</h2>
+    <div class="materials-grid" id="materials-grid">
+      <!-- Materials will be loaded here -->
+      <div class="empty-state">
+        <i class="fas fa-video-slash"></i>
+        <h3>No materials uploaded yet</h3>
+        <p>Upload your first lesson material using the form above.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -158,31 +164,8 @@
   </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal" id="delete-modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Confirm Delete</h2>
-      <button class="close-modal">&times;</button>
-    </div>
-    <p>Are you sure you want to delete <strong id="delete-material-name"></strong>? This action cannot be undone.</p>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" id="cancel-delete">Cancel</button>
-      <button class="btn btn-danger" id="confirm-delete">Delete</button>
-    </div>
-  </div>
-</div>
-
-<div class="notification" id="notification"></div>
-
 <script>
-  const uploadedMaterials = [];
-
-  const materialsGrid = document.getElementById("materials-grid");
-  const totalVideosElement = document.getElementById("total-videos");
-  const totalNotesElement = document.getElementById("total-notes");
-  const notification = document.getElementById("notification");
-
+  // File upload handlers
   const videoUpload = document.getElementById("video-upload");
   const videoFile = document.getElementById("video-file");
   const videoName = document.getElementById("video-name");
@@ -191,74 +174,36 @@
   const notesFile = document.getElementById("notes-file");
   const notesName = document.getElementById("notes-name");
 
-  const form = document.getElementById("upload-form");
-
   videoUpload.addEventListener("click", () => videoFile.click());
-  videoFile.addEventListener("change", () => { if(videoFile.files.length) videoName.textContent = videoFile.files[0].name; });
-
-  notesUpload.addEventListener("click", () => notesFile.click());
-  notesFile.addEventListener("change", () => { if(notesFile.files.length) notesName.textContent = notesFile.files[0].name; });
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if(!videoFile.files.length){ showNotification("Please select a video file","error"); return; }
-
-    const newMaterial = {
-      id: uploadedMaterials.length+1,
-      title: document.getElementById("title").value,
-      description: document.getElementById("description").value,
-      category: document.getElementById("category").value,
-      videoUrl: URL.createObjectURL(videoFile.files[0]),
-      notesFile: notesFile.files.length ? URL.createObjectURL(notesFile.files[0]) : null,
-      date: new Date().toLocaleDateString()
-    };
-    uploadedMaterials.unshift(newMaterial);
-    renderMaterials();
-    updateStats();
-    showNotification("Material uploaded successfully!");
-    form.reset();
-    videoName.textContent = "";
-    notesName.textContent = "";
+  videoFile.addEventListener("change", () => { 
+    if(videoFile.files.length) videoName.textContent = videoFile.files[0].name; 
   });
 
-  function renderMaterials(){
-    materialsGrid.innerHTML = "";
-    if(!uploadedMaterials.length){ materialsGrid.innerHTML='<div class="empty-state"><i class="fas fa-video-slash"></i><h3>No materials found</h3></div>'; return; }
-    uploadedMaterials.forEach(mat=>{
-      const card = document.createElement("div");
-      card.className="material-card";
-      card.innerHTML=`<button class="delete-btn"><i class="fas fa-times"></i></button>
-      <div class="video-container"><img class="video-thumbnail" src="https://img.youtube.com/vi/2d2Y79MV8cM/maxresdefault.jpg"/><div class="play-button"><i class="fas fa-play-circle"></i></div></div>
-      <div class="material-details">
-        <h3>${mat.title}</h3>
-        <p>${mat.description}</p>
-        <div class="material-meta"><span>${mat.date}</span></div>
-        <div class="material-actions">
-          <button class="btn download-notes-btn">${mat.notesFile?"Download Notes":"No Notes"}</button>
-        </div>
-      </div>`;
-      const playBtn = card.querySelector(".video-container");
-      playBtn.addEventListener("click",()=>{ const modalVideo=document.getElementById("modal-video"); document.getElementById("modal-title").textContent=mat.title; modalVideo.src=mat.videoUrl; document.getElementById("video-modal").style.display="flex"; });
-      const downloadBtn = card.querySelector(".download-notes-btn");
-      downloadBtn.addEventListener("click",(e)=>{ e.stopPropagation(); if(mat.notesFile){ const a=document.createElement("a"); a.href=mat.notesFile; a.download="notes.pdf"; a.click(); showNotification("Notes downloading..."); } else showNotification("No notes uploaded","error"); });
-      materialsGrid.appendChild(card);
-    });
+  notesUpload.addEventListener("click", () => notesFile.click());
+  notesFile.addEventListener("change", () => { 
+    if(notesFile.files.length) notesName.textContent = notesFile.files[0].name; 
+  });
+
+  // Simple notification system
+  function showNotification(msg, type = "success") {
+    // You can enhance this to show actual notifications
+    console.log(`${type}: ${msg}`);
   }
 
-  function updateStats(){
-    totalVideosElement.textContent = uploadedMaterials.length;
-    const notesCount = uploadedMaterials.filter(m=>m.notesFile).length;
-    totalNotesElement.textContent = notesCount;
-  }
+  // Video modal functionality
+  document.querySelectorAll(".close-modal").forEach(btn => 
+    btn.addEventListener("click", () => {
+      document.getElementById("video-modal").style.display = "none"; 
+      document.getElementById("modal-video").pause(); 
+    })
+  );
 
-  function showNotification(msg,type="success"){
-    notification.textContent = msg;
-    notification.className="notification show"+(type==="error"?" error":"");
-    setTimeout(()=>{ notification.classList.remove("show"); },3000);
-  }
-
-  document.querySelectorAll(".close-modal").forEach(btn=>btn.addEventListener("click",()=>{document.getElementById("video-modal").style.display="none"; document.getElementById("modal-video").pause(); }));
-  window.addEventListener("click",(e)=>{ if(e.target.id==="video-modal"){ document.getElementById("video-modal").style.display="none"; document.getElementById("modal-video").pause(); } });
+  window.addEventListener("click", (e) => { 
+    if(e.target.id === "video-modal") { 
+      document.getElementById("video-modal").style.display = "none"; 
+      document.getElementById("modal-video").pause(); 
+    } 
+  });
 </script>
 </body>
 </html>
