@@ -1,23 +1,32 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from flask_mysqldb import MySQL
-import MySQLdb.cursors
 from pymongo import MongoClient
+from datetime import datetime
+import bcrypt
+import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = '99a1bcdf63193e62a3e0cb9b312147bb526d4120618bf2b655651002bde24050'
 
-# MySQL config for user auth
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'tinybeads_db'
-
-mysql = MySQL(app)
-
-# MongoDB client for student data
+# MongoDB connection
 client = MongoClient('mongodb://localhost:27017/')
 db = client['tinybeads_db']
-students_collection = db['students']
+users_collection = db['users']
+lessons_collection = db['lessons']
+students_collection = db['students']  # Added missing collection definition
+
+
+# Video upload config
+ALLOWED_EXTENSIONS = {'mp4', 'webm', 'ogg', 'mov', 'mkv'}
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads', 'videos')
+MAX_CONTENT_LENGTH = 200 * 1024 * 1024  # 200 MB
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/')
@@ -25,7 +34,38 @@ def home():
     return render_template("base.html")
 
 
-# User login route
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        user_type = request.form['userType']
+
+        if password != confirm_password:
+            flash("Passwords do not match!", "danger")
+            return redirect(url_for('register'))
+
+        if users_collection.find_one({'email': email}):
+            flash("Email already registered!", "danger")
+            return redirect(url_for('register'))
+
+        hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        users_collection.insert_one({
+            "username": username,
+            "email": email,
+            "password": hashed_pw,
+            "user_type": user_type,
+            "created_at": datetime.utcnow()
+        })
+
+        flash("Account created successfully! Please login.", "success")
+        return redirect(url_for('login'))
+
+    return render_template("register.html")
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -33,74 +73,137 @@ def login():
         password = request.form['password']
         user_type = request.form.get('user_type')
 
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute('SELECT * FROM users WHERE email = %s AND password = %s', (email, password))
-        user = cursor.fetchone()
-        cursor.close()
+        user = users_collection.find_one({'email': email})
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+            if user_type == user['user_type']:
+                session['loggedin'] = True
+                session['email'] = user['email']
+                session['user_type'] = user['user_type']
 
-        if user:
-            session['loggedin'] = True
-            session['id'] = user['id']
-            session['email'] = user['email']
-            session['user_type'] = user_type
-
-            # Redirect based on user type
-            if user_type == 'student':
-                return redirect(url_for('dashboard'))
-            elif user_type == 'teacher':
-                return redirect(url_for('teacher'))
+                if user['user_type'] == 'student':
+                    return redirect(url_for('dashboard'))
+                else:
+                    return redirect(url_for('teacher'))
             else:
-                flash('User type is invalid', 'danger')
-                return redirect(url_for('login'))
+                flash("Incorrect user type!", "danger")
         else:
             flash('Invalid email or password', 'danger')
-            return redirect(url_for('login'))
+
+        return redirect(url_for('login'))
 
     return render_template("login.html")
 
 
-
-# User registration route
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        confirm = request.form['confirm_password']
-        if password != confirm:
-            flash("Passwords don't match", 'danger')
-            return redirect(url_for('register'))
-        cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
-        account = cursor.fetchone()
-        if account:
-            flash('Account already exists!', 'danger')
-            cursor.close()
-            return redirect(url_for('register'))
-        cursor.execute('INSERT INTO users (email, password) VALUES (%s, %s)', (email, password))
-        mysql.connection.commit()
-        cursor.close()
-        flash('Registration successful! Please log in.', 'success')
-        return redirect(url_for('login'))
-    return render_template("register.html")
-
-
-# Dashboard
 @app.route('/dashboard')
 def dashboard():
-    if 'loggedin' in session:
-        return render_template('dashboard.html')
+    if session.get('loggedin') and session.get('user_type') == 'student':
+        total_students = users_collection.count_documents({'user_type': 'student'})
+        active_courses = lessons_collection.distinct('course')
+        avg_progress = 78  # calculate this for real later
+        achievements = 156 # you should calculate this too
+        return render_template(
+            'dashboard.html',
+            total_students=total_students,
+            active_courses=len(active_courses),
+            avg_progress=avg_progress,
+            achievements=achievements
+        )
     return redirect(url_for('login'))
 
 
-# Logout
+@app.route('/teacher')
+def teacher():
+    if session.get('loggedin') and session.get('user_type') == 'teacher':
+        return render_template('teacher.html')
+    return redirect(url_for('login'))
+
+
+@app.route('/teacher/lesson', methods=['GET', 'POST'])
+def upload_lesson():
+    if session.get('loggedin') and session.get('user_type') == 'teacher':
+        if request.method == 'POST':
+            title = request.form.get('title', '').strip()
+            description = request.form.get('description', '').strip()
+            course = request.form.get('course', '').strip()
+            video = request.files.get('video')
+
+            if not title or not video or video.filename == '':
+                flash('Please provide a title and video file.', 'danger')
+                return redirect(url_for('upload_lesson'))
+
+            if not allowed_file(video.filename):
+                flash('Invalid file type! Allowed: ' + ', '.join(ALLOWED_EXTENSIONS), 'danger')
+                return redirect(url_for('upload_lesson'))
+
+            filename = secure_filename(f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{video.filename}")
+            video.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            video_url = f"/static/uploads/videos/{filename}"
+
+            lessons_collection.insert_one({
+                'title': title,
+                'description': description,
+                'course': course,
+                'filename': filename,
+                'video_url': video_url,
+                'mimetype': video.mimetype,
+                'teacher_email': session.get('email'),
+                'uploaded_at': datetime.utcnow()(),
+                'published': True
+            })
+
+            flash('Lesson uploaded successfully.', 'success')
+            return redirect(url_for('teacher'))
+
+        return render_template('lesson.html')
+
+    flash('Please login as a teacher to upload lessons.', 'danger')
+    return redirect(url_for('login'))
+
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
 
-# Student registration route using MongoDB
+@app.route('/course')
+def courses():
+    if not session.get('loggedin') or session.get('user_type') != 'student':
+        flash('Please login as a student to view courses.', 'danger')
+        return redirect(url_for('login'))
+
+    course_filter = request.args.get('course')
+    query = {'published': True}
+    if course_filter:
+        query['course'] = course_filter
+
+    lessons = list(lessons_collection.find(query).sort('uploaded_at', -1))
+    # Convert _id to string for URLs
+    for lesson in lessons:
+        lesson['_id'] = str(lesson['_id'])
+
+    return render_template('course.html', lessons=lessons, course=course_filter)
+
+
+@app.route("/api/materials")
+def get_materials():
+    if not session.get("loggedin") or session.get("user_type") != "student":
+        return jsonify([])
+
+    lessons = list(lessons_collection.find({"published": True}).sort("uploaded_at", -1))
+    results = []
+    for lesson in lessons:
+        results.append({
+            "title": lesson["title"],
+            "description": lesson["description"],
+            "course": lesson["course"],
+            "teacher_email": lesson["teacher_email"],
+            "video_url": url_for("static", filename="uploads/videos/" + lesson["filename"]),
+            "notes_url": lesson.get("notes_url"),
+            "thumbnail": lesson.get("thumbnail") or None
+        })
+    return jsonify(results)
+
 
 @app.route('/studentreg', methods=['GET', 'POST'])
 def studentreg():
@@ -138,11 +241,6 @@ def students():
     return render_template('students.html', students=students)
 
 
-# Other routes...
-@app.route('/teacher')
-def teacher():
-    return render_template('teacher.html')
-
 @app.route('/lesson')
 def lesson():
     return render_template('lesson.html')
@@ -158,6 +256,10 @@ def p_report():
 @app.route('/activities')
 def activities():
     return render_template('activities.html')
+
+@app.route('/help')
+def help():
+    return render_template('help.html')
 
 
 if __name__ == "__main__":

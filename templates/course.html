@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Courses - TinyBeads</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* Basic styles for the course page */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fafb;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #4361ee;
+        }
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill,minmax(320px,1fr));
+            gap: 20px;
+        }
+        .course-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+        .course-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #2d3748;
+        }
+        .course-description {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: #666;
+        }
+        video {
+            width: 100%;
+            border-radius: 8px;
+            background: black;
+        }
+        .course-meta {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <h1>Available Courses</h1>
+    {% if lessons and lessons | length > 0 %}
+    <div class="course-list">
+        {% for lesson in lessons %}
+        <div class="course-card">
+            <div class="course-title">{{ lesson.title }}</div>
+            <video controls preload="metadata" poster="{{ lesson.thumbnail or '' }}">
+                <source src="{{ lesson.video_url }}" type="{{ lesson.mimetype or 'video/mp4' }}">
+                Your browser does not support the video tag.
+            </video>
+            <div class="course-description">{{ lesson.description }}</div>
+            <div class="course-meta">Teacher: {{ lesson.teacher_email }}</div>
+            <div class="course-meta">Uploaded: {{ lesson.uploaded_at.strftime('%Y-%m-%d %H:%M') if lesson.uploaded_at else 'N/A' }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No courses found.</p>
+    {% endif %}
+</body>
+</html>

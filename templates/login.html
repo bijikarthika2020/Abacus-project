@@ -6,7 +6,8 @@
     <title>Login - TinyBeads</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        /* Your previous CSS */
+        /* ... your CSS code remains unchanged ... */
+        /* ... Your CSS code from previous snippet ... */
         * {
             margin: 0;
             padding: 0;
@@ -264,12 +265,10 @@
                     <label for="email">Email Address</label>
                     <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required />
                 </div>
-
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required />
                 </div>
-
                 <div class="form-group">
                     <label>I am a: *</label>
                     <div class="user-type">
@@ -277,7 +276,6 @@
                             <i class="fas fa-user-graduate"></i>
                             <div>Student</div>
                         </div>
-                        
                         <div class="user-type-option" onclick="selectUserType(this, 'teacher')" tabindex="0" role="button" aria-pressed="false">
                             <i class="fas fa-chalkboard-teacher"></i>
                             <div>Teacher</div>
@@ -285,7 +283,6 @@
                     </div>
                     <input type="hidden" id="userTypeInput" name="user_type" required>
                 </div>
-
                 <button type="submit" class="login-btn">Login</button>
             </form>
 
@@ -310,6 +307,8 @@
     </div>
 
     <footer>
+        <!-- ... your footer code ... -->
+
         <div class="footer-content">
             <div class="footer-column">
                 <h3>TinyBeads</h3>
@@ -352,44 +351,17 @@
             ©️ 2023 TinyBeads. All rights reserved.
         </div>
     </footer>
-
     <script>
-            // JavaScript to handle user type selection
-            function selectUserType(element, userType) {
-                // Remove selected class from all options
-                document.querySelectorAll('.user-type-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                    opt.setAttribute('aria-pressed', 'false');
-                });
-                // Add selected class to clicked option
-                element.classList.add('selected');
-                element.setAttribute('aria-pressed', 'true');
-                // Set hidden input value for form submission
-                document.getElementById('userTypeInput').value = userType;
-            }
-        
-            // Form submission handler with conditional redirect
-            document.getElementById('loginForm').addEventListener('submit', function(event) {
-                event.preventDefault();  // prevent default submission for demonstration
-        
-                const userType = document.getElementById('userTypeInput').value;
-        
-                if (!userType) {
-                    alert('Please select a user type!');
-                    return;
-                }
-        
-                // You can add validation for other inputs here if needed
-        
-                // Redirect based on selected user type
-                if (userType === 'student') {
-                    window.location.href = '/dashboard';  // redirect to dashboard route
-                } else if (userType === 'teacher') {
-                    window.location.href = '/teacher';    // redirect to teacher route
-                } else {
-                    alert('Login for this user type is not implemented yet.');
-                }
+        // User type selection JS only - no submit handler!
+        function selectUserType(element, userType) {
+            document.querySelectorAll('.user-type-option').forEach(opt => {
+                opt.classList.remove('selected');
+                opt.setAttribute('aria-pressed', 'false');
             });
+            element.classList.add('selected');
+            element.setAttribute('aria-pressed', 'true');
+            document.getElementById('userTypeInput').value = userType;
+        }
     </script>
 </body>
 </html>
